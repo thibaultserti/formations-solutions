@@ -1,0 +1,12 @@
+FROM ubuntu
+
+RUN apt install -y python3 python3-pip python3.12-venv
+RUN python3 -m venv .venv
+RUN source .venv/bin/activate
+
+RUN wget https://raw.githubusercontent.com/thibaultserti/formations/main/docker-ansible/fil-rouge/api-python/requirements.txt
+RUN wget https://raw.githubusercontent.com/thibaultserti/formations/main/docker-ansible/fil-rouge/api-python/main.py
+
+RUN pip3 install -r requirements.txt
+
+ENTRYPOINT [ "uvicorn", "main:app", "--host", "0.0.0.0" ]
