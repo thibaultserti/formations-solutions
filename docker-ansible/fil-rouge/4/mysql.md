@@ -1,8 +1,9 @@
 # Run MySQL
 
 ```bash
-docker run --name mysql -v $(PWD)/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=pw -d mysql:8
+docker run --name mysql -v $(PWD)/data:/var/lib/mysql -v $(PWD):/script -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=db -d mysql:8
 ```
+
 # Exec in it
 
 ```bash
