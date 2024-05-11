@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    volumes:
+      - ./data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: db
+    networks:
+      - app
+
+  api-python:
+    image: api-python
+    container_name: api-python
+    ports:
+      - "8080:8000"
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: root
+      DB_NAME: db
+    networks:
+      - app
+    depends_on:
+      - mysql
+
+  redis:
+    image: redis:6
+    container_name: redis
+    networks:
+      - app
+
+  api-golang:
+    image: api-golang
+    container_name: api-golang
+    ports:
+      - "8081:8000"
+    environment:
+      REDIS_ADDR: redis:6379
+      PORT: 8000
+    networks:
+      - app
+    depends_on:
+      - redis
+
+networks:
+  app:
+    driver: bridge

@@ -1,0 +1,54 @@
+name: Build and Scan Docker Images
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: [api-python, api-golang]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build an image from Dockerfile
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/${{ matrix.file }}:latest ./docker-ansible/fil-rouge/7/${{ matrix.file }}
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: 'ghcr.io/${{ github.repository_owner }}/${{ matrix.file }}:latest'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'HIGH'
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: 'Login to GitHub Container Registry'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{github.actor}}
+          password: ${{secrets.GITHUB_TOKEN}}
+
+
+      - name: Build and push Docker Image to GHCR and DockerHub
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker-ansible/fil-rouge/7/${{ matrix.file }}
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.file }}:latest, ${{ secrets.DOCKERHUB_USER }}/${{ matrix.file }}:latest
