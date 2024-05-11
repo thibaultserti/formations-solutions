@@ -1,0 +1,50 @@
+---
+- name: Installation de Nginx
+  hosts: all
+  become: true
+  vars_files:
+    - ssl.yml
+  tasks:
+    - name: Installation de Nginx sur RedHat
+      ansible.builtin.yum:
+        name: nginx
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Installation de Nginx sur Debian
+      ansible.builtin.apt:
+        name: nginx
+        update_cache: true
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Création du répertoire SSL
+      ansible.builtin.file:
+        path: /etc/nginx/ssl
+        state: directory
+        mode: "0640"
+
+    - name: Transfert du certificat SSL
+      ansible.builtin.copy:
+        src: files/{{ server_name }}.crt
+        dest: /etc/nginx/ssl/{{ server_name }}.crt
+        mode: "0640"
+
+    - name: Transfert de la clé privée SSL
+      ansible.builtin.copy:
+        src: files/{{ server_name }}.key
+        dest: /etc/nginx/ssl/{{ server_name }}.key
+        mode: "0640"
+
+    - name: Copie de la configuration Nginx
+      ansible.builtin.template:
+        src: nginx-https.conf.j2
+        dest: /etc/nginx/sites-available/default
+        mode: "0644"
+      notify: Restart Nginx
+
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded

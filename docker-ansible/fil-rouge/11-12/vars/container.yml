@@ -1,0 +1,5 @@
+server_name: test.ayanides.cloud
+
+proxy_port: 8080
+
+home: /home/user

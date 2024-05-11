@@ -1,0 +1,96 @@
+---
+- name: Docker compose deploy app
+  hosts: all
+  become: true
+  vars_files:
+    - container.yml
+  tasks:
+    - name: Installation de Nginx sur RedHat
+      ansible.builtin.yum:
+        name: nginx
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Installation de Nginx sur Debian
+      ansible.builtin.apt:
+        name: nginx
+        update_cache: true
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Création du répertoire SSL
+      ansible.builtin.file:
+        path: /etc/nginx/ssl
+        state: directory
+        mode: "0640"
+
+    - name: Transfert du certificat SSL
+      ansible.builtin.copy:
+        src: files/{{ server_name }}.crt
+        dest: /etc/nginx/ssl/{{ server_name }}.crt
+        mode: "0640"
+
+    - name: Transfert de la clé privée SSL
+      ansible.builtin.copy:
+        src: files/{{ server_name }}.key
+        dest: /etc/nginx/ssl/{{ server_name }}.key
+        mode: "0640"
+
+    - name: Copie de la configuration Nginx
+      ansible.builtin.template:
+        src: nginx-container.conf.j2
+        dest: /etc/nginx/sites-available/default
+        mode: "0644"
+      notify: Restart Nginx
+
+####
+
+    - name: Installation de Docker/Python/pip
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - python3
+          - python3-pip
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Installation de Docker sur Red Hat
+      ansible.builtin.yum:
+        name:
+          - docker.io
+          - python3
+          - python3-pip
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Installation de Docker Compose
+      ansible.builtin.pip:
+        name:
+          - docker-compose
+          - "docker==6.1.3"
+        executable: pip3
+        state: present
+
+    - name: Copie du fichier docker-compose
+      ansible.builtin.copy:
+        src: files/docker-compose.yaml
+        dest: "{{ home }}/docker-compose.yaml"
+        mode: "0640"
+
+    - name: Création du répertoire data
+      ansible.builtin.file:
+        path: "{{ home }}/data"
+        state: directory
+        mode: "0750"
+
+# Run ansible-galaxy collection install community.docker
+    - name: Run `docker-compose up`
+      community.docker.docker_compose:
+        project_src: "{{ home }}"
+        build: false
+
+  handlers:
+    - name: Restart Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: reloaded

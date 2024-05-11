@@ -1,0 +1,2 @@
+nginx_root: /var/www/html
+server_name: test.ayanides.cloud

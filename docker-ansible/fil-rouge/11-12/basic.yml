@@ -1,0 +1,19 @@
+---
+- name: Installation de Nginx
+  hosts: all
+  become: true
+  tasks:
+    - name: Mise à jour du cache des paquets
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Installation de Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+
+    - name: Démarrage du service Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
