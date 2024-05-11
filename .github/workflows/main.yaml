@@ -8,9 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      packages: write
     strategy:
       matrix:
         file: [api-python, api-golang]
@@ -41,17 +38,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: 'Login to GitHub Container Registry'
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{github.actor}}
-          password: ${{secrets.GITHUB_TOKEN}}
-
-
       - name: Build and push Docker Image to GHCR and DockerHub
         uses: docker/build-push-action@v5
         with:
           context: ./docker-ansible/fil-rouge/7/${{ matrix.file }}
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.file }}:latest, ${{ secrets.DOCKERHUB_USER }}/${{ matrix.file }}:latest
+          tags: ${{ secrets.DOCKERHUB_USER }}/${{ matrix.file }}:latest
