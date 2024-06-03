@@ -6,7 +6,7 @@ COPY . .
 RUN cargo build --release
 
 
-FROM alpine:latest as release
+FROM gcr.io/distroless/cc-debian12
 
 WORKDIR /app
 COPY --from=builder /app/target/release/hello_rocket .
