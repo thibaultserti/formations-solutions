@@ -11,7 +11,7 @@ docker exec -it mysql /bin/bash
 ```
 
 ```bash
-mysql -u root -p fb < script/script.sql
+mysql -u root -p db < script/script.sql
 ```
 
 # Clean
@@ -26,5 +26,5 @@ mysql -u root -p db
 ```
 
 ```sql
-SELECT * FROM users
+SELECT * FROM users;
 ```
