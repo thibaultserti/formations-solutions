@@ -25,6 +25,12 @@
         mode: "0644"
       notify: Restart Nginx
 
+    - name: Démarrage du service Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
   handlers:
     - name: Restart Nginx
       ansible.builtin.service:
