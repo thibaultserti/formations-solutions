@@ -1,0 +1,18 @@
+dependencies:
+- name: backend
+  repository: file://charts/backend
+  version: 0.1.0
+- name: frontend
+  repository: file://charts/frontend
+  version: 0.1.0
+- name: cronjob
+  repository: file://charts/cronjob
+  version: 0.1.0
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 18.3.0
+- name: redis
+  repository: https://charts.bitnami.com/bitnami
+  version: 25.2.0
+digest: sha256:17d1dd4186256494957b6ba707f88d5cf6be818fbaf9de0e1758ff777d434d37
+generated: "2026-02-17T17:43:19.267017+01:00"
