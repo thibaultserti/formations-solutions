@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cronjob
+spec:
+  jobTemplate:
+    metadata:
+      name: cronjob
+    spec:
+      template:
+        metadata: {}
+        spec:
+          containers:
+          - image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+            name: cronjob
+            resources: {}
+          restartPolicy: OnFailure
+  schedule: 0 1 1 1 *
+  timeZone: Europe/Paris
+
+status: {}

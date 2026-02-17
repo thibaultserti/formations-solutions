@@ -1,0 +1,19 @@
+postgresql:
+  # image:
+  #   registry: docker.io
+  #   repository: postgres
+  #   tag: 16
+  nameOverride: "postgres"
+  fullnameOverride: "postgres"
+  auth:
+    existingSecret: pg-secret
+    database: messenger
+    secretKeys:
+      adminPasswordKey: PG_PASSWORD
+redis:
+  nameOverride: "redis"
+  fullnameOverride: "redis"
+  architecture: "standalone"
+  auth:
+    enabled: false
+    sentinel: false
