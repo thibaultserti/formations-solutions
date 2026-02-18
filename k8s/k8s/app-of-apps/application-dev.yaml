@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev
+spec:
+  destination:
+    namespace: dev
+    server: https://kubernetes.default.svc
+  source:
+    path: k8s/k8s/helm
+    repoURL: https://github.com/thibaultserti/formations-solutions.git
+    targetRevision: HEAD
+    helm:
+      valueFiles:
+        - values/dev.yaml
+  sources: []
+  project: default
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
