@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: appset
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+  - git:
+      repoURL: https://github.com/thibaultserti/formations-solutions.git
+      revision: HEAD
+      files:
+      - path: k8s/k8s/helm/values/*
+  template:
+    metadata:
+      name: '{{.path.filename | trimSuffix ".yaml"}}'
+      namespace: argocd
+    spec:
+      project: "default"
+      source:
+        repoURL: https://github.com/thibaultserti/formations-solutions.git
+        targetRevision: HEAD
+        path: 'k8s/k8s/helm/'
+        helm:
+          valueFiles:
+          - '{{.path.basename}}/{{.path.filename}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{.path.filename | trimSuffix ".yaml"}}'
